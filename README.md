@@ -2,7 +2,7 @@
 # Who Wants to be a Millionaire
 
 One Paragraph of project description goes here
-### Installing
+## Installing
 
 python project_1.py
 

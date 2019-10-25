@@ -69,7 +69,7 @@ def game():
             else:
                 print("Congratulations! You won:", payout[10])
                 break
-    print("Congratulations! You are a Millionaire!!!)           
+    print("Congratulations! You are a Millionaire!!!")           
 
 
 start_point = input(player_name.capitalize()+", please enter 'start' to start the game: ")

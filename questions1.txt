@@ -1,2 +1,0 @@
-﻿"Knowing that a function named fun() resides in a module named mod, choose the proper way to import it:", "import fun from mod", "import fun", "from mod import fun", "from fun import mod"
-"Knowing that a function named fun() resides in a module named mod, and it has been imported using the following line: \n\nimport mod \nchoose the way it can be invoked in your code:", "mod.fun()", "mod::fun()", "fun()", "mod‑>fun()"

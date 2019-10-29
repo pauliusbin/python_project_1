@@ -1,8 +1,9 @@
 import webbrowser
 import random
-import time
 import json
-
+import threading
+from time import sleep
+import datetime
 
 questions_file = "questions1.txt"
 payout = [
@@ -30,14 +31,12 @@ with open("questions_list.json", "r", encoding="utf-8") as myfile:
 questions_list = json.loads(data)
 
 
-player_name = input(
-    'Welcome to the game "Who Wants to be a Millionaire"!\nPlease enter your name: '
-)
-print(
-    player_name.capitalize() + ", you have",
-    time_limit,
-    'minutes to answer 15 questions and became a millionaire!\nYou have 2 guarantee points: 1000 and 32000\nThere are 2 lifelines:\n50/50 - enter "50/50"\nSearch in web - enter "web"\n\nEnter\'quit\' to end the game and take the money\n',
-)
+def timer():
+    global my_timer
+    my_timer = (time_limit*60)+1
+    for i in range(20):
+        my_timer -= 1
+        sleep(1)
 
 
 def game():
@@ -46,23 +45,26 @@ def game():
     web_help = 0
     fiftyfifty_help = 0
 
-    for i in range(14):
+    for i in range(15):
         question = random.choice(current_list)
         current_list.remove(question)
-        print(
-            "Question for",
-            payout[i],
-            "\n" + question[0],
-            "\na) ",
-            question[1],
-            "\nb) ",
-            question[2],
-            "\nc) " + question[3],
-            "\nd) ",
-            question[4],
-        )
+        print(str(datetime.timedelta(seconds=my_timer)))
+        print("Question for", payout[i], "\n\n" + question[0])
+        sleep(0.3)
+        print("a) ", question[1])
+        sleep(0.3)
+        print("b) ", question[2])
+        sleep(0.3)
+        print("c) ", question[3])
+        sleep(0.3)
+        print("d) ", question[4], "\n")
+        sleep(0.3)
         answer = input("Enter your answer (a, b, c or d): ")
-        while answer.lower() not in ["a", "b", "c", "d", "quit"]:
+        if my_timer == 0:
+            answer = "quit"
+            print("Out of time")
+
+        while answer.lower() not in ["a", "b", "c", "d"]:
             if answer == "web":
                 if web_help == 0:
                     webbrowser.open("http://google.com", new=2)
@@ -78,18 +80,17 @@ def game():
                     random_list.remove(random.choice(random_list))
                     question[random_list[0]] = ""
                     question[random_list[1]] = ""
-                    print(
-                        "Question for",
-                        payout[i],
-                        "\n" + question[0],
-                        "\na) ",
-                        question[1],
-                        "\nb) ",
-                        question[2],
-                        "\nc) " + question[3],
-                        "\nd) ",
-                        question[4],
-                    )
+                    print(str(datetime.timedelta(seconds=my_timer)))
+                    print("Question for", payout[i], "\n\n" + question[0])
+                    sleep(0.5)
+                    print("a) ", question[1])
+                    sleep(0.5)
+                    print("b) ", question[2])
+                    sleep(0.5)
+                    print("c) ", question[3])
+                    sleep(0.5)
+                    print("d) ", question[4], "\n")
+                    sleep(0.5)
                     fiftyfifty_help += 1
                     answer = input("Enter your answer (a, b, c or d): ")
                 else:
@@ -98,10 +99,10 @@ def game():
             elif answer.lower() == "quit":
                 if money > 0:
                     print("Congratulations! You won:", money)
-                    break
+                    exit()
                 else:
                     print("You didn't win anything. Try again.")
-                    break
+                    exit()
             else:
                 print("Unrecognized answer")
                 answer = input("Enter your answer (a, b, c or d): ")
@@ -123,6 +124,14 @@ def game():
                 break
 
 
+player_name = input(
+    'Welcome to the game "Who Wants to be a Millionaire"!\nPlease enter your name: '
+)
+print(
+    player_name.capitalize() + ", you have",
+    time_limit,
+    'minutes to answer 15 questions and became a millionaire!\nYou have 2 guarantee points: 1000 and 32000\nThere are 2 lifelines:\n50/50 - enter "50/50"\nSearch in web - enter "web"\n\nEnter\'quit\' to end the game and take the money\n',
+)
 start_point = input(
     player_name.capitalize() + ", please enter 'start' to start the game: "
 )
@@ -130,5 +139,8 @@ while start_point.lower() != "start":
     start_point = input(
         player_name.capitalize() + ", please enter 'start' to start the game: "
     )
+timer_thread = threading.Thread(target=timer)
+timer_thread.start()
+while my_timer > 0:
+    game()
 
-game()

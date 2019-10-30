@@ -4,8 +4,8 @@ import json
 import threading
 from time import sleep
 import datetime
+import sys
 
-questions_file = "questions1.txt"
 payout = [
     100,
     200,
@@ -33,8 +33,8 @@ questions_list = json.loads(data)
 
 def timer():
     global my_timer
-    my_timer = (time_limit*60)+1
-    for i in range(20):
+    my_timer = (time_limit * 60) + 1
+    for i in range(my_timer):
         my_timer -= 1
         sleep(1)
 
@@ -48,7 +48,7 @@ def game():
     for i in range(15):
         question = random.choice(current_list)
         current_list.remove(question)
-        print(str(datetime.timedelta(seconds=my_timer)))
+        print("Time left:", str(datetime.timedelta(seconds=my_timer)))
         print("Question for", payout[i], "\n\n" + question[0])
         sleep(0.3)
         print("a) ", question[1])
@@ -61,16 +61,20 @@ def game():
         sleep(0.3)
         answer = input("Enter your answer (a, b, c or d): ")
         if my_timer == 0:
-            answer = "quit"
             print("Out of time")
+            answer = "quit"
 
-        while answer.lower() not in ["a", "b", "c", "d"]:
-            if answer == "web":
+        while answer.lower() not in ["a", "b", "c", "d", "quit"]:
+            if my_timer == 0:
+                print("Out of time")
+                answer = "quit"
+            elif answer == "web":
                 if web_help == 0:
                     webbrowser.open("http://google.com", new=2)
                     web_help += 1
                     answer = input("Enter your answer (a, b, c or d): ")
                 else:
+                    print("Time left:", str(datetime.timedelta(seconds=my_timer)))
                     print("You have already used this lifeline")
                     answer = input("Enter your answer (a, b, c or d): ")
             elif answer == "50/50":
@@ -94,22 +98,25 @@ def game():
                     fiftyfifty_help += 1
                     answer = input("Enter your answer (a, b, c or d): ")
                 else:
+                    print("Time left:", str(datetime.timedelta(seconds=my_timer)))
                     print("You have already used this lifeline")
                     answer = input("Enter your answer (a, b, c or d): ")
-            elif answer.lower() == "quit":
-                if money > 0:
-                    print("Congratulations! You won:", money)
-                    exit()
-                else:
-                    print("You didn't win anything. Try again.")
-                    exit()
+
             else:
+                print("Time left:", str(datetime.timedelta(seconds=my_timer)))
                 print("Unrecognized answer")
                 answer = input("Enter your answer (a, b, c or d): ")
 
         if answer.lower() == question[5]:
             money = payout[i]
             print("Your answer is correct!\n")
+        elif answer.lower() == "quit":
+            if money > 0:
+                print("Congratulations! You won:", money)
+                break
+            else:
+                print("You didn't win anything. Try again.")
+                break
         elif money == payout[14]:
             print("Congratulations! You are a Millionaire!!!")
         else:
@@ -140,7 +147,8 @@ while start_point.lower() != "start":
         player_name.capitalize() + ", please enter 'start' to start the game: "
     )
 timer_thread = threading.Thread(target=timer)
+timer_thread.setDaemon(True)
 timer_thread.start()
-while my_timer > 0:
-    game()
+game()
+sys.exit()
 
